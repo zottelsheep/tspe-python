@@ -6,7 +6,7 @@ from quantities import millisecond, Quantity
 from elephant.conversion import BinnedSpikeTrain
 from neo import SpikeTrain
 
-DEFAULT_BIN_SIZE = 10 * millisecond
+DEFAULT_BIN_SIZE = 1 * millisecond
 
 def load_spike_train_example_mat(path: Union[Path,str],bin_size: Optional[Quantity] = None):
 
