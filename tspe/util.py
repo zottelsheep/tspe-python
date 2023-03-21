@@ -1,10 +1,12 @@
 from pathlib import Path
 from typing import Optional, Union
 
-from scipy.io import loadmat
-from quantities import millisecond, Quantity
+import numpy as np
+
 from elephant.conversion import BinnedSpikeTrain
 from neo import SpikeTrain
+from quantities import Quantity, millisecond
+from scipy.io import loadmat
 
 DEFAULT_BIN_SIZE = 1 * millisecond
 
@@ -50,7 +52,7 @@ def load_spike_train_mat(path: Union[Path,str],bin_size: Optional[Quantity] = No
     if 'TS' not in data:
         raise ValueError('Incorrect dataformat: No timestamps in data under "TS"')
 
-    spiketrain_timestamps = data['TS']
+    spiketrain_timestamps = np.transpose(data['TS'])
 
     if 'PREF' not in data:
         raise ValueError('Incorrect dataformat: No metadata in data under "PREF"')
