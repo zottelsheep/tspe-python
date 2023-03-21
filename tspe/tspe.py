@@ -36,12 +36,26 @@ def total_spiking_probability_edges(
     # Apply edge and running total filter
     neuron_pairs = np.tril_indices(n_neurons)
     n_neurons_pairs = len(neuron_pairs[0])
-    TSPE = np.zeros((n_neurons_pairs, max_delay))
+    delay_matrix = np.zeros((n_neurons, n_neurons, max_delay))
     for edge_filter, running_total_filter in filter_pairs:
         for n_neuron_pair, (neuron_1, neuron_2) in enumerate(zip(*neuron_pairs)):
-            x1 = np.convolve(NCC_d[:, neuron_1, neuron_2], edge_filter, "valid")
+            # TODO: Test if fftconvole can replace forloop using axis argument
+            x1 = np.convolve(NCC_d[neuron_1, neuron_2, :], edge_filter, "valid")
             x2 = np.convolve(x1, running_total_filter, "full")
 
-            TSPE[n_neuron_pair, :len(x2)] += x2
+            delay_matrix[neuron_1, neuron_2, : len(x2)] += x2
 
-    return TSPE
+    # Copy upper triangular part of delay_matrix to bottom, since
+    # it is the same information, due to NCC being symmetric
+    # delay_matrix = delay_matrix + delay_matrix.swapaxes(0,1) - np.diag(np.diag(delay_matrix))
+
+    return delay_matrix
+
+def generate_connectivity_matrix_from_delay_matrix(delay_matrix: np.ndarray) -> np.ndarray:
+
+    # Take maxima of absolute of delays to get estimation for connectivity
+    connectivity_matrix = np.max(np.abs(delay_matrix),axis=2)
+
+    return connectivity_matrix
+
+

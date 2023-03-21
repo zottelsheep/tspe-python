@@ -60,5 +60,9 @@ def normalized_cross_correlation(
         # Compute cross correlation at given delay time
         NCC_d[delay_time, :, :] = NCC
 
+    # Move delay_time axis to back of array
+    # Makes index using neurons more intuitive → (n_neuron, n_neuron, delay_times)
+    NCC_d = np.moveaxis(NCC_d, 0, -1)
+
 
     return NCC_d
