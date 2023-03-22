@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from elephant.conversion import BinnedSpikeTrain
 import numpy as np
+from scipy.signal import fftconvolve
 
 from tspe.filters import generate_filter_pairs
 from tspe.normalized_cross_correlation import normalized_cross_correlation
@@ -34,20 +35,14 @@ def total_spiking_probability_edges(
 
 
     # Apply edge and running total filter
-    neuron_pairs = np.tril_indices(n_neurons)
-    n_neurons_pairs = len(neuron_pairs[0])
     delay_matrix = np.zeros((n_neurons, n_neurons, max_delay))
     for edge_filter, running_total_filter in filter_pairs:
-        for n_neuron_pair, (neuron_1, neuron_2) in enumerate(zip(*neuron_pairs)):
-            # TODO: Test if fftconvole can replace forloop using axis argument
-            x1 = np.convolve(NCC_d[neuron_1, neuron_2, :], edge_filter, "valid")
-            x2 = np.convolve(x1, running_total_filter, "full")
+        x1 = fftconvolve(NCC_d, np.expand_dims(edge_filter,(0,1)), mode="valid",axes=2)
+        x2 = fftconvolve(x1, np.expand_dims(running_total_filter,(0,1)), mode="full",axes=2)
 
-            delay_matrix[neuron_1, neuron_2, : len(x2)] += x2
+        delay_matrix[:,:, : x2.shape[2] ] += x2
 
-    # Copy upper triangular part of delay_matrix to bottom, since
-    # it is the same information, due to NCC being symmetric
-    # delay_matrix = delay_matrix + delay_matrix.swapaxes(0,1) - np.diag(np.diag(delay_matrix))
+    print("Done!")
 
     return delay_matrix
 
