@@ -10,7 +10,6 @@ from scipy.io import loadmat
 
 DEFAULT_BIN_SIZE = 1 * millisecond
 
-
 def load_spike_train_example_mat(
     path: Union[Path, str],
     bin_size: Optional[Quantity] = None,
@@ -78,6 +77,8 @@ def load_spike_train_mat(
     # Create spiketrains
     spiketrains = []
     for spiketrain_raw in spiketrain_timestamps[0:n_electrodes]:
+        if not spiketrain_raw.any():
+            continue
         spiketrains.append(
             SpikeTrain(spiketrain_raw * millisecond, t_stop=recording_duration_ms)
         )
