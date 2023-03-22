@@ -40,6 +40,10 @@ dynamic = ["version"]
 [tool.hatch.version]
 path = "tspe/__about__.py"
 
+[tool.hatch.build]
+include = [
+  "reference/TSPE.m"
+]
 [tool.hatch.envs.default]
 dependencies = [
   "pytest",
@@ -65,3 +69,4 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
+
