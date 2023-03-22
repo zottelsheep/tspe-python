@@ -5,7 +5,8 @@ import numpy as np
 
 
 def normalized_cross_correlation(
-    spike_trains: BinnedSpikeTrain, delay_times: Union[int, List[int], Iterable[int]] = 0
+    spike_trains: BinnedSpikeTrain,
+    delay_times: Union[int, List[int], Iterable[int]] = 0,
 ) -> np.ndarray:
     r"""normalized cross correlation using std deviation
 
@@ -25,13 +26,14 @@ def normalized_cross_correlation(
     # TODO: Check effekts of binary spike-train (spike_trains.binarize())
     spike_trains_array = spike_trains.to_sparse_array()
 
-    # Get mean of spike_train
-    ones = np.ones((n_bins, 1))
-    spike_trains_mean = (spike_trains_array * ones) / n_bins
-    spike_trains_zeroed = spike_trains_array - spike_trains_mean
-
     # Get std deviation of spike trains
-    spike_trains_std = np.std(spike_trains_zeroed, axis=1, ddof=1)
+    # Same as np.std(x,axis=1,ddof=1) but for sparse-arrays
+    spike_trains_zeroed = spike_trains_array - spike_trains_array.mean(axis=1)
+    spike_trains_std = np.sqrt(
+        np.power(spike_trains_zeroed, 2).sum(axis=1)
+        / (spike_trains_array.shape[1] - 1)
+    )
+    std_factors = spike_trains_std @ spike_trains_std.T
 
     # Loop over delay times
     if isinstance(delay_times, int):
@@ -41,28 +43,29 @@ def normalized_cross_correlation(
 
     NCC_d = np.zeros((len(delay_times), n_neurons, n_neurons))
 
-    for delay_time in delay_times:
+    for index, delay_time in enumerate(delay_times):
         # Uses theoretical zero-padding for shifted values,
         # but since $0 \cdot x = 0$ values can simply be omitted
         if delay_time >= 0:
-            CC = spike_trains_array[:, delay_time:] * np.transpose(
-                spike_trains_array[:, : -delay_time or None]
+            CC = (
+                spike_trains_zeroed[:, delay_time:]
+                @ spike_trains_zeroed[:, : -delay_time or None].transpose()
             )
+
         else:
-            CC = spike_trains_array[:, :delay_time] * np.transpose(
-                spike_trains_array[:, -delay_time or None :]
+            CC = (
+                spike_trains_zeroed[:, :delay_time]
+                @ spike_trains_zeroed[:, -delay_time or None :].transpose()
             )
 
         # Normalize using std deviation
-        std_factors = spike_trains_std * np.transpose(spike_trains_std)
         NCC = CC / std_factors / n_bins
 
         # Compute cross correlation at given delay time
-        NCC_d[delay_time, :, :] = NCC
+        NCC_d[index, :, :] = NCC
 
     # Move delay_time axis to back of array
     # Makes index using neurons more intuitive → (n_neuron, n_neuron, delay_times)
     NCC_d = np.moveaxis(NCC_d, 0, -1)
-
 
     return NCC_d
