@@ -31,7 +31,7 @@ def normalized_cross_correlation(
     spike_trains_zeroed = spike_trains_array - spike_trains_mean
 
     # Get std deviation of spike trains
-    spike_trains_std = np.std(spike_trains_zeroed, axis=1)
+    spike_trains_std = np.std(spike_trains_zeroed, axis=1, ddof=1)
 
     # Loop over delay times
     if isinstance(delay_times, int):
