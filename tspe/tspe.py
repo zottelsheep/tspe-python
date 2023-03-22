@@ -49,7 +49,8 @@ def total_spiking_probability_edges(
 def generate_connectivity_matrix_from_delay_matrix(delay_matrix: np.ndarray) -> np.ndarray:
 
     # Take maxima of absolute of delays to get estimation for connectivity
-    connectivity_matrix = np.max(np.abs(delay_matrix),axis=2)
+    connectivity_matrix_index = np.argmax(np.abs(delay_matrix),axis=2,keepdims=True)
+    connectivity_matrix = np.take_along_axis(delay_matrix,connectivity_matrix_index,axis=2).squeeze(axis=2)
 
     return connectivity_matrix
 
