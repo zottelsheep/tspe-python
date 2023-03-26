@@ -27,12 +27,8 @@ def normalized_cross_correlation(
     spike_trains_array = spike_trains.to_sparse_array()
 
     # Get std deviation of spike trains
-    # Same as np.std(x,axis=1,ddof=1) but for sparse-arrays
     spike_trains_zeroed = spike_trains_array - spike_trains_array.mean(axis=1)
-    spike_trains_std = np.sqrt(
-        np.power(spike_trains_zeroed, 2).sum(axis=1)
-        / (spike_trains_array.shape[1] - 1)
-    )
+    spike_trains_std = np.std(spike_trains_zeroed,ddof=1,axis=1)
     std_factors = spike_trains_std @ spike_trains_std.T
 
     # Loop over delay times
