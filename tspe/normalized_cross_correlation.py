@@ -46,16 +46,22 @@ def normalized_cross_correlation(
     for index, delay_time in enumerate(delay_times):
         # Uses theoretical zero-padding for shifted values,
         # but since $0 \cdot x = 0$ values can simply be omitted
-        if delay_time >= 0:
+        if  delay_time == 0:
             CC = (
-                spike_trains_zeroed[:, delay_time:]
-                @ spike_trains_zeroed[:, : -delay_time or None].transpose()
+                spike_trains_array[:,:]
+                @ spike_trains_array[:,:].transpose()
+            )
+
+        elif delay_time > 0:
+            CC = (
+                spike_trains_array[:, delay_time:]
+                @ spike_trains_array[:, : -delay_time].transpose()
             )
 
         else:
             CC = (
-                spike_trains_zeroed[:, :delay_time]
-                @ spike_trains_zeroed[:, -delay_time or None :].transpose()
+                spike_trains_array[:, :delay_time]
+                @ spike_trains_array[:, -delay_time:].transpose()
             )
 
         # Normalize using std deviation
