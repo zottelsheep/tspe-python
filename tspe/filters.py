@@ -1,7 +1,8 @@
 import itertools
-from typing import List, Tuple
+from typing import List, NamedTuple, Tuple
 
 import numpy as np
+
 
 def generate_edge_filter(
     a: int,
@@ -40,19 +41,32 @@ def generate_running_total_filter(b: int) -> np.ndarray:
     return np.ones(b)
 
 
+class tspe_filter_pair(NamedTuple):
+    edge_filter: np.ndarray
+    running_total_filter: np.ndarray
+    needed_padding: int
+    a: int
+    b: int
+    c: int
+
+
 def generate_filter_pairs(
     a: List[int],
     b: List[int],
     c: List[int],
-) -> List[Tuple[np.ndarray, np.ndarray]]:
+) -> List[tspe_filter_pair]:
     """Generates filter pairs of edge and running total filter using all
     permutations of given parameters
     """
     filter_pairs = []
 
     for _a, _b, _c in itertools.product(a, b, c):
-        g = generate_edge_filter(_a, _b, _c)
-        h = generate_running_total_filter(_b)
-        filter_pairs.append((g, h))
+        edge_filter = generate_edge_filter(_a, _b, _c)
+        running_total_filter = generate_running_total_filter(_b)
+        needed_padding = _a + _c
+        filter_pair = tspe_filter_pair(
+            edge_filter, running_total_filter, needed_padding, _a, _b, _c
+        )
+        filter_pairs.append(filter_pair)
 
     return filter_pairs

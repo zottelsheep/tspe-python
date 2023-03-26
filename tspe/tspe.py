@@ -13,6 +13,7 @@ def total_spiking_probability_edges(
     a: Optional[List[int]] = None,
     b: Optional[List[int]] = None,
     c: Optional[List[int]] = None,
+    max_delay: int = 25
 ):
     if not a:
         a = [3, 4, 5, 6, 7, 8]
@@ -26,21 +27,25 @@ def total_spiking_probability_edges(
     n_neurons, n_bins = spike_train_data.shape
 
     filter_pairs = generate_filter_pairs(a, b, c)
-    n_filter_pairs = len(filter_pairs)
-
-    max_delay = 2 * max(a) + max(b) + 2 * max(c) + 25
 
     # Calculate normalized cross corelation for different delays
-    NCC_d = normalized_cross_correlation(spike_train_data, delay_times=range(max_delay))
+    # The delay range ranges from 0 to max-delay and includes
+    # padding for the filter convolution
+    padding = max(a) + max(c)
+    delay_range = list(range(-padding,max_delay + padding))
+    NCC_d = normalized_cross_correlation(spike_train_data, delay_times=delay_range)
 
     # Apply edge and running total filter
-    delay_matrix = np.zeros((n_neurons, n_neurons, max_delay))
-    for edge_filter, running_total_filter in filter_pairs:
-        x1 = fftconvolve(NCC_d, np.expand_dims(edge_filter,(0,1)), mode="valid",axes=2)
-        x2 = fftconvolve(x1, np.expand_dims(running_total_filter,(0,1)), mode="full",axes=2)
+    delay_matrix = np.zeros((n_neurons, n_neurons, max_delay-1))
+    for filter in filter_pairs:
+        # Select ncc_window based on needed filter padding
+        NCC_window = NCC_d[:,:,padding-filter.needed_padding:max_delay+padding+filter.needed_padding]
 
-        delay_matrix[:,:, : x2.shape[2] ] += x2
+        # Compute two convolutions with edge- and running total filter
+        x1 = fftconvolve(NCC_window, np.expand_dims(filter.edge_filter,(0,1)), mode="valid",axes=2)
+        x2 = fftconvolve(x1, np.expand_dims(filter.running_total_filter,(0,1)), mode="full",axes=2)
 
+        delay_matrix += x2
 
     return delay_matrix
 
