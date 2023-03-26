@@ -53,6 +53,9 @@ connectivity_matrix_matlab, _ = total_spiking_probability_edges_matlab(example_m
 plot_connectivity_matrix(0,1,connectivity_matrix_matlab,'MATLAB implementation')
 print('Done!')
 
+# Average difference between implementations
+print(f'Average difference: {np.nanmean(connectivity_matrix-connectivity_matrix_matlab)}')
+
 # Plot differene
 plot_connectivity_matrix(0,2,connectivity_matrix-connectivity_matrix_matlab,'Difference')
 
@@ -65,6 +68,8 @@ plot_connectivity_matrix(1,1,connectivity_matrix_matlab,'MATLAB implementation �
 
 # Plot difference with missing self-connections
 plot_connectivity_matrix(1,2,connectivity_matrix-connectivity_matrix_matlab,'Difference – No self-connections')
+
+print(f'Average difference – no self-connections: {np.nanmean(connectivity_matrix-connectivity_matrix_matlab)}')
 
 plt.show()
 
