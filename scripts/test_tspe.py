@@ -1,5 +1,6 @@
 from matlab.engine import start_matlab
 import matplotlib.pyplot as plt
+import seaborn as sns
 from matplotlib.gridspec import GridSpec
 from quantities import millisecond
 import numpy as np
@@ -18,12 +19,17 @@ print('Done!')
 
 # Configure figure
 fig = plt.figure()
+fig.tight_layout()
 fig.suptitle('TSPE – Implementation Comparisons')
 gs = GridSpec(2,3,figure=fig)
+sns.set_theme(style="white")
+# cmap=sns.color_palette("Spectral", as_cmap=True)
+cmap='icefire'
 
 def plot_connectivity_matrix(index_y,index_x,matrix,title):
     ax = fig.add_subplot(gs[index_y,index_x])
-    ax.pcolormesh(matrix)
+    # ax.pcolormesh(matrix)
+    sns.heatmap(matrix,ax=ax,cmap=cmap)
     ax.set_title(title)
     ax.set_aspect('equal')
 
