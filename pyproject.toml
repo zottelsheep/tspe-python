@@ -30,6 +30,7 @@ dependencies = [
   "elephant",
   "neo"
 ]
+
 dynamic = ["version"]
 
 # [project.urls]
@@ -44,6 +45,7 @@ path = "tspe/__about__.py"
 include = [
   "reference/TSPE.m"
 ]
+
 [tool.hatch.envs.default]
 dependencies = [
   "pytest",
@@ -70,3 +72,9 @@ exclude_lines = [
   "if TYPE_CHECKING:",
 ]
 
+[tool.pyright]
+include= ["tspe"]
+exclude = [
+  "**/node_modules",
+  "**/__pycache__",
+]
