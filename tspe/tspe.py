@@ -33,7 +33,6 @@ def total_spiking_probability_edges(
     # Calculate normalized cross corelation for different delays
     NCC_d = normalized_cross_correlation(spike_train_data, delay_times=range(max_delay))
 
-
     # Apply edge and running total filter
     delay_matrix = np.zeros((n_neurons, n_neurons, max_delay))
     for edge_filter, running_total_filter in filter_pairs:
@@ -42,7 +41,6 @@ def total_spiking_probability_edges(
 
         delay_matrix[:,:, : x2.shape[2] ] += x2
 
-    print("Done!")
 
     return delay_matrix
 
