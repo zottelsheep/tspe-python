@@ -89,3 +89,15 @@ def load_spike_train_mat(
     spiketrains = BinnedSpikeTrain(spiketrains, bin_size=bin_size, t_stop=t_stop or recording_duration_ms)
 
     return spiketrains
+
+def convert_to_sdf(spike_train_data: BinnedSpikeTrain):
+    n_electrons, recording_duration_ms = spike_train_data.shape
+    sdf_int32 = spike_train_data.spike_indices
+    # Convert to float64
+    sdf = []
+    for sdf_electrode in sdf_int32:
+        sdf.append(sdf_electrode.astype(np.float64))
+
+    sdf.append(np.array([n_electrons,recording_duration_ms],dtype=np.float64))
+
+    return sdf

@@ -5,20 +5,7 @@ import matlab.engine
 from elephant.conversion import BinnedSpikeTrain
 import numpy as np
 
-def convert_to_sdf(spike_train_data: BinnedSpikeTrain):
-    n_electrons, recording_duration_ms = spike_train_data.shape
-    spike_array = spike_train_data.to_sparse_array()
-    sdf = []
-    for electron in range(n_electrons):
-        # Use index of spiketrain as timestamp
-        spike_train_time = spike_array[electron,:].nonzero()[1].astype(np.float64)
-        # Adjust timestamp for bin_size
-        spike_train_time = spike_train_time * int(spike_train_data.bin_size)
-        sdf.append(spike_train_time)
-
-    sdf.append(np.array([n_electrons,recording_duration_ms],dtype=np.float64))
-
-    return sdf
+from tspe.io import convert_to_sdf
 
 
 def total_spiking_probability_edges_matlab(
