@@ -21,8 +21,8 @@ def generate_edge_filter(
             \end{cases}
 
     """
-    filter_length = (2 * a) + b + (2 * c) + 1
-    i = np.linspace(0, filter_length, filter_length)
+    filter_length = (2 * a) + b + (2 * c)
+    i = np.arange(1, filter_length + 1, dtype=np.float64)
 
     conditions = [
         (i > 0) & (i <= a),
