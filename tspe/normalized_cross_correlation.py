@@ -34,6 +34,8 @@ def normalized_cross_correlation(
     # Loop over delay times
     if isinstance(delay_times, int):
         delay_times = [delay_times]
+    elif isinstance(delay_times, list):
+        pass
     elif isinstance(delay_times, Iterable):
         delay_times = list(delay_times)
 
