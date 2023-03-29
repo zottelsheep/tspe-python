@@ -7,9 +7,19 @@ from scipy.signal import fftconvolve
 from tspe.filters import generate_filter_pairs
 from tspe.normalized_cross_correlation import normalized_cross_correlation
 
+def tspe(
+    spike_train_data: BinnedSpikeTrain,
+    a: Optional[List[int]] = None,
+    b: Optional[List[int]] = None,
+    c: Optional[List[int]] = None,
+    max_delay: int = 25
+         ):
+
+    delay_matrix = total_spiking_probability_edges(spike_train_data,a,b,c,max_delay)
+
 
 def total_spiking_probability_edges(
-    spike_train_data: BinnedSpikeTrain,
+    spike_trains: BinnedSpikeTrain,
     a: Optional[List[int]] = None,
     b: Optional[List[int]] = None,
     c: Optional[List[int]] = None,
@@ -24,22 +34,22 @@ def total_spiking_probability_edges(
     if not c:
         c = [0]
 
-    n_neurons, n_bins = spike_train_data.shape
+    n_neurons, n_bins = spike_trains.shape
 
     filter_pairs = generate_filter_pairs(a, b, c)
 
     # Calculate normalized cross corelation for different delays
     # The delay range ranges from 0 to max-delay and includes
     # padding for the filter convolution
-    padding = max(a) + max(c)
-    delay_range = list(range(-padding,max_delay + padding))
-    NCC_d = normalized_cross_correlation(spike_train_data, delay_times=delay_range)
+    max_padding = max(a) + max(c)
+    delay_range = list(range(-max_padding,max_delay + max_padding))
+    NCC_d = normalized_cross_correlation(spike_trains, delay_times=delay_range)
 
     # Apply edge and running total filter
-    delay_matrix = np.zeros((n_neurons, n_neurons, max_delay-1))
+    delay_matrix = np.zeros((n_neurons, n_neurons, max_delay))
     for filter in filter_pairs:
         # Select ncc_window based on needed filter padding
-        NCC_window = NCC_d[:,:,padding-filter.needed_padding:max_delay+padding+filter.needed_padding]
+        NCC_window = NCC_d[:,:,max_padding-filter.needed_padding:max_delay+max_padding+filter.needed_padding]
 
         # Compute two convolutions with edge- and running total filter
         x1 = fftconvolve(NCC_window, np.expand_dims(filter.edge_filter,(0,1)), mode="valid",axes=2)

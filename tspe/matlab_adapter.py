@@ -9,10 +9,10 @@ from tspe.io import convert_to_sdf
 
 
 def total_spiking_probability_edges_matlab(
-    spike_train_data: BinnedSpikeTrain,
     a: Optional[List[int]] = None,
     b: Optional[List[int]] = None,
     c: Optional[List[int]] = None,
+    spike_trains: BinnedSpikeTrain,
     matlab_engine: Optional[matlab.engine.MatlabEngine] = None,
     tspe_path: Optional[Path] = None,
 ):
@@ -34,7 +34,7 @@ def total_spiking_probability_edges_matlab(
     matlab_engine.cd(str(tspe_path.absolute()))
 
     # Convert spike_train_data into SpikeDataFormat
-    sdf = convert_to_sdf(spike_train_data)
+    sdf = convert_to_sdf(spike_trains)
 
     # Call TSPE-Function via matlab
     connectivity_matrix, delay_matrix = matlab_engine.TSPE(sdf,nargout=2)
