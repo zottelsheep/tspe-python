@@ -44,7 +44,10 @@ def load_spike_train_example_mat(
 
     spiketrains = BinnedSpikeTrain(spiketrains, bin_size=bin_size, t_stop = t_stop or recording_duration_ms)
 
-    return spiketrains
+    # Load original_data
+    original_data = data['SWM']
+
+    return spiketrains, original_data
 
 
 def load_spike_train_mat(
