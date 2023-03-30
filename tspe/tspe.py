@@ -2,7 +2,7 @@ from typing import List, Optional, Tuple
 
 from elephant.conversion import BinnedSpikeTrain
 import numpy as np
-from scipy.signal import fftconvolve
+from scipy.signal import oaconvolve
 
 from tspe.filters import generate_filter_pairs
 from tspe.normalized_cross_correlation import normalized_cross_correlation
@@ -57,8 +57,8 @@ def total_spiking_probability_edges(
         NCC_window = NCC_d[:,:,max_padding-filter.needed_padding:max_delay+max_padding+filter.needed_padding]
 
         # Compute two convolutions with edge- and running total filter
-        x1 = fftconvolve(NCC_window, np.expand_dims(filter.edge_filter,(0,1)), mode="valid",axes=2)
-        x2 = fftconvolve(x1, np.expand_dims(filter.running_total_filter,(0,1)), mode="full",axes=2)
+        x1 = oaconvolve(NCC_window, np.expand_dims(filter.edge_filter,(0,1)), mode="valid",axes=2)
+        x2 = oaconvolve(x1, np.expand_dims(filter.running_total_filter,(0,1)), mode="full",axes=2)
 
         tspe_matrix += x2
 
