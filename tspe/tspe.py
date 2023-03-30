@@ -47,8 +47,8 @@ def total_spiking_probability_edges(
     # The delay range ranges from 0 to max-delay and includes
     # padding for the filter convolution
     max_padding = max(a) + max(c)
-    delay_range = list(range(-max_padding,max_delay + max_padding))
-    NCC_d = normalized_cross_correlation(spike_trains, delay_times=delay_range)
+    delay_times = list(range(-max_padding,max_delay + max_padding))
+    NCC_d = normalized_cross_correlation(spike_trains, delay_times=delay_times)
 
     # Apply edge and running total filter
     tspe_matrix = np.zeros((n_neurons, n_neurons, max_delay))
