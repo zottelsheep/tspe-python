@@ -23,8 +23,7 @@ def normalized_cross_correlation(
     n_neurons, n_bins = spike_trains.shape
 
     # Get sparse array of BinnedSpikeTrain
-    # TODO: Check effekts of binary spike-train (spike_trains.binarize())
-    spike_trains_array = spike_trains.to_sparse_array()
+    spike_trains_array = spike_trains.sparse_matrix
 
     # Get std deviation of spike trains
     spike_trains_zeroed = spike_trains_array - spike_trains_array.mean(axis=1)
