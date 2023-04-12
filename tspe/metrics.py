@@ -12,7 +12,7 @@ def apply_threshold(connectivity_matrix: npt.NDArray,threshold:int):
     connectivity_matrix_threshold[mask] = 0
     return connectivity_matrix_threshold
 
-def binarize(connectivity_matrix:npt.NDArray,threshold:int):
+def classify_connections(connectivity_matrix:npt.NDArray,threshold:int):
     connectivity_matrix_binarized = connectivity_matrix.copy()
 
     mask_excitatory = connectivity_matrix_binarized > threshold
@@ -35,10 +35,10 @@ def confusion_matrix(estimate, original, threshold: int = 1):
         - TN: Matches for non-existing synapses are True Negative
         - FN: mismatches are False Negative.
     """
-    if not np.all(np.unique(estimate) == np.array([-1,0,1])):
-        estimate = binarize(estimate,threshold)
-    if not np.all(np.unique(original) == np.array([-1,0,1])):
-        original = binarize(original,threshold)
+    if not np.all(np.isin([-1,0,1], np.unique(estimate))):
+        estimate = classify_connections(estimate,threshold)
+    if not np.all(np.isin([-1,0,1], np.unique(original))):
+        original = classify_connections(original,threshold)
 
     TP = (np.not_equal(estimate,0) & np.not_equal(original,0)).sum()
 
@@ -81,14 +81,23 @@ def roc_curve(estimate,original):
         tpr_list.append(sensitivity(*conf_matrix))
         fpr_list.append(fall_out(*conf_matrix))
 
-    return tpr_list,fpr_list,thresholds
+    auc = np.trapz(tpr_list, fpr_list)
+
+    return tpr_list, fpr_list, thresholds, auc
 
 
 def plot_roc_curve(estimate,original):
     plt.figure()
-    tpr_rate, fpr_rate, _ = roc_curve(estimate,original)
-    plt.plot(fpr_rate,tpr_rate,'b')
+    tpr_rate, fpr_rate, _, auc = roc_curve(estimate,original)
+    plt.plot(fpr_rate,
+             tpr_rate,
+             'b',linestyle='--',marker='o',lw=2,
+             label='ROC curve',
+             clip_on=False)
     plt.plot([0,1],[0,1], 'r--')
-    plt.xlabel("False Positive Rate", fontsize=12)
-    plt.ylabel("True Positive Rate", fontsize=12)
-    plt.show()
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.0])
+    plt.title(f'ROC curve, AUC = {auc:.2} ')
+    plt.legend(loc='lower right')
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
