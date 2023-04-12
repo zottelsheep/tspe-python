@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, Union
+from typing import Literal, Optional, Tuple, Union
 
 import numpy as np
 
@@ -10,11 +10,27 @@ from scipy.io import loadmat
 
 DEFAULT_BIN_SIZE = 1 * millisecond
 
-def load_spike_train_example_mat(
+def load_spike_train_mat(
     path: Union[Path, str],
     bin_size: Optional[Quantity] = None,
     t_stop: Optional[Quantity] = None,
-):
+    format: Literal['SPIKEZ','SIMULATED'] = 'SPIKEZ'
+) -> Tuple[BinnedSpikeTrain,Optional[np.ndarray]]:
+    if format=='SPIKEZ':
+        spiketrains = load_spike_train_spikez(path,bin_size,t_stop)
+        original_data = None
+    elif format =='SIMULATED':
+        spiketrains, original_data = load_spike_train_simulated(path,bin_size,t_stop)
+    else:
+        raise NotImplementedError(f'Format {format} is not implemented yet. Valid formats include SPIKEZ, SIMULATED')
+
+    return spiketrains, original_data
+
+def load_spike_train_simulated(
+    path: Union[Path, str],
+    bin_size: Optional[Quantity] = None,
+    t_stop: Optional[Quantity] = None,
+) -> Tuple[BinnedSpikeTrain, np.ndarray]:
     if isinstance(path, str):
         path = Path(path)
 
@@ -45,16 +61,17 @@ def load_spike_train_example_mat(
     spiketrains = BinnedSpikeTrain(spiketrains, bin_size=bin_size, t_stop = t_stop or recording_duration_ms)
 
     # Load original_data
-    original_data = data['SWM']
+    original_data = data['SWM'].T
 
     return spiketrains, original_data
 
 
-def load_spike_train_mat(
+def load_spike_train_spikez(
     path: Union[Path, str],
     bin_size: Optional[Quantity] = None,
     t_stop: Optional[Quantity] = None,
-):
+) -> BinnedSpikeTrain:
+
     if isinstance(path, str):
         path = Path(path)
 
