@@ -15,6 +15,7 @@ def total_spiking_probability_edges_matlab(
     b: Optional[npt.ArrayLike] = None,
     c: Optional[npt.ArrayLike] = None,
     max_delay: int = 25,
+    normalize: bool = False,
     matlab_engine: Optional[matlab.engine.MatlabEngine] = None,
     tspe_path: Optional[Path] = None,
 ):
@@ -42,7 +43,6 @@ def total_spiking_probability_edges_matlab(
     else:
         a = np.array([])
 
-
     if b is not None:
         b = np.array(b,dtype=np.float64)
     else:
@@ -58,11 +58,16 @@ def total_spiking_probability_edges_matlab(
     else:
         d = np.array([])
 
+    if normalize:
+        flag_normalize = True
+    else:
+        flag_normalize = np.array([])
+
     # Convert spike_train_data into SpikeDataFormat
     sdf = convert_to_sdf(spike_trains)
 
     # Call TSPE-Function via matlab
-    connectivity_matrix, delay_matrix = matlab_engine.TSPE(sdf,d,a,b,c,nargout=2)
+    connectivity_matrix, delay_matrix = matlab_engine.TSPE(sdf,d,a,b,c,flag_normalize,nargout=2)
 
     # Handle return types
     connectivity_matrix = np.array(connectivity_matrix)

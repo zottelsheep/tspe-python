@@ -12,15 +12,15 @@ def tspe(
     a: Optional[List[int]] = None,
     b: Optional[List[int]] = None,
     c: Optional[List[int]] = None,
-    max_delay: int = 25
+    max_delay: int = 25,
+    normalize: bool = False
          ):
 
-    tspe_matrix = total_spiking_probability_edges(spike_trains,a,b,c,max_delay)
+    tspe_matrix = total_spiking_probability_edges(spike_trains,a,b,c,max_delay,normalize)
 
     connectivity_matrix, delay_matrix = get_connectivity_matrix(tspe_matrix)
 
     return connectivity_matrix, delay_matrix
-
 
 
 def total_spiking_probability_edges(
@@ -28,7 +28,8 @@ def total_spiking_probability_edges(
     a: Optional[List[int]] = None,
     b: Optional[List[int]] = None,
     c: Optional[List[int]] = None,
-    max_delay: int = 25
+    max_delay: int = 25,
+    normalize: bool = False
 ):
     if not a:
         a = [3, 4, 5, 6, 7, 8]
@@ -49,6 +50,11 @@ def total_spiking_probability_edges(
     max_padding = max(a) + max(c)
     delay_times = list(range(-max_padding,max_delay + max_padding))
     NCC_d = normalized_cross_correlation(spike_trains, delay_times=delay_times)
+
+    # Normalize to counter network-bursts
+    if normalize:
+        for delay_time in delay_times:
+            NCC_d[:,:,delay_time] /= np.sum(NCC_d[:,:,delay_time][~np.identity(NCC_d.shape[0],dtype=bool)])
 
     # Apply edge and running total filter
     tspe_matrix = np.zeros((n_neurons, n_neurons, max_delay))

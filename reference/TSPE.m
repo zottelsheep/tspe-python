@@ -133,12 +133,12 @@ mat=sparse(vec1(vec1>0 & vec1 <= NrS+1),vec2(vec1>0 & vec1 <= NrS+1),1,NrS,NrC);
         end
     end
 
-% Additional scaling for reduction of network burst impacts:
+%% Additional scaling for reduction of network burst impacts:
     if FLAG_NORM
       s=zeros(length(ran),1);
       for i=1:length(ran)
-          zwi=CM(i, ~ diag(ones(NrC,1)));
-          s(i)=sum(sum(  zwi(~ isnan(CM(i, ~ diag(ones(NrC,1)))))));
+          zwi=CM(i, ~ diag(ones(NrC,1)))
+          s(i)=sum(  zwi(~ isnan(zwi)));
       end
       CM=CM./s;
     end
