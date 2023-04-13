@@ -9,18 +9,22 @@ import numpy as np
 from quantities import millisecond
 import seaborn as sns
 
-from tspe.io import load_spike_train_example_mat, load_spike_train_mat
+from tspe.io import load_spike_train_mat
 from tspe.matlab_adapter import total_spiking_probability_edges_matlab
-from tspe.tspe import (
-    generate_connectivity_matrix_from_delay_matrix,
-    total_spiking_probability_edges,
-)
+from tspe.tspe import tspe
+
+from tspe.metrics import plot_roc_curve
 
 # ==== Options ====
+INPUT_PATH = Path('../reference/evaluation_data/ER15/new_sim0_100.mat')
+# RECORDING_DURATION = 1800000 * millisecond
+RECORDING_DURATION = None
+INPUT_FORMAT = 'SIMULATED'
 OUTPUT_PATH = Path('./out')
 COLORMAP = 'icefire'
-SAVE_PLOTS = False
-SHOW_PLOTS = True
+SAVE_PLOTS = True
+SHOW_PLOTS = False
+COMPARE_ORIGINAL = True
 PERFORM_NORM = False
 DPI = 200
 
@@ -35,16 +39,15 @@ print('Starting MATLAB..')
 eng = start_matlab()
 print('Done!')
 
-
 # Load example spiketrain
 print('Loading Spiketrain..')
-spike_trains, original_data = load_spike_train_example_mat('../reference/ExampleSpikeTrain.mat', t_stop=1800000*millisecond)
+spike_trains, original_data = load_spike_train_mat(INPUT_PATH,
+                                                   t_stop=RECORDING_DURATION,
+                                                   format=INPUT_FORMAT
+                                                   )
+if not COMPARE_ORIGINAL:
+    original_data = None
 
-# spike_trains = load_spike_train_mat('../reference/5 active electrodes.mat')
-# original_data = None
-
-if original_data is not None:
-    original_data = original_data.transpose()
 
 print('Done!')
 
@@ -55,8 +58,8 @@ print('Done!')
 print('Calulating TSPE using Python implementation..')
 
 t_start = perf_counter()
-delay_matrix = total_spiking_probability_edges(spike_trains)
-connectivity_matrix = generate_connectivity_matrix_from_delay_matrix(delay_matrix)
+connectivity_matrix, _ = tspe(spike_trains)
+
 # Neglect self-connections
 np.fill_diagonal(connectivity_matrix,0)
 t_stop = perf_counter()
@@ -65,7 +68,7 @@ print(f'Done! Took {t_stop-t_start:.2}s')
 # Calculate MATLAB implementation
 print('Calulating TSPE using MATLAB implementation..')
 t_start = perf_counter()
-connectivity_matrix_matlab, _, _ = total_spiking_probability_edges_matlab(spike_trains, matlab_engine=eng)
+connectivity_matrix_matlab, _ = total_spiking_probability_edges_matlab(spike_trains, matlab_engine=eng)
 # Neglect self-connections
 np.fill_diagonal(connectivity_matrix_matlab,0)
 t_stop = perf_counter()
@@ -112,6 +115,9 @@ def comparison_plot(connectivity_matrix: np.ndarray,
                     annotations:Optional[Union[str,List[str]]]=None
                     ):
 
+    if not any([SHOW_PLOTS,SAVE_PLOTS]):
+        return
+
     # Title
     if isinstance(annotations,str):
         annotations = [annotations]
@@ -137,6 +143,7 @@ def comparison_plot(connectivity_matrix: np.ndarray,
 
     # Plot difference of connectivity_matrix
     plot_connectivity_matrix(fig,gs,0,2,np.abs(connectivity_matrix-connectivity_matrix_matlab),'Absolute Difference')
+
 
     if SAVE_PLOTS:
         save_path = OUTPUT_PATH / "".join(['tspe_implementation_comparison',annotations_str,'.png'])
@@ -223,6 +230,22 @@ def comparison_plot(connectivity_matrix: np.ndarray,
             save_path = OUTPUT_PATH / "".join(['connectivity_matrix_tspe_matlab-original',annotations_str,'.png'])
             print(f'\tSaving to "{save_path}"..')
             plt.savefig(save_path,format='png',dpi=DPI)
+
+        # Plot ROC-Curve
+        plot_roc_curve(connectivity_matrix,original_data)
+
+        if SAVE_PLOTS:
+            save_path = OUTPUT_PATH / "".join(['roc_curve_python',annotations_str,'.png'])
+            print(f'\tSaving to "{save_path}"..')
+            plt.savefig(save_path,format='png',dpi=DPI)
+
+        plot_roc_curve(connectivity_matrix_matlab,original_data)
+
+        if SAVE_PLOTS:
+            save_path = OUTPUT_PATH / "".join(['roc_curve_matlab',annotations_str,'.png'])
+            print(f'\tSaving to "{save_path}"..')
+            plt.savefig(save_path,format='png',dpi=DPI)
+
 
 comparison_plot(connectivity_matrix,
                 connectivity_matrix_matlab,
