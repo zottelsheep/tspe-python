@@ -14,6 +14,11 @@ TEST_DATA_DIR = Path(__file__).parent.parent.resolve() / "reference" / "evaluati
     "datafiles",
     [
         TEST_DATA_DIR / "SW" / "new_sim0_100.mat",
+        TEST_DATA_DIR / "BA" / "new_sim0_100.mat",
+        TEST_DATA_DIR / "CA" / "new_sim0_100.mat",
+        TEST_DATA_DIR / "ER05" / "new_sim0_100.mat",
+        TEST_DATA_DIR / "ER10" / "new_sim0_100.mat",
+        TEST_DATA_DIR / "ER15" / "new_sim0_100.mat",
     ],
 )
 def test_tspe_using_sim_data(datafiles):
