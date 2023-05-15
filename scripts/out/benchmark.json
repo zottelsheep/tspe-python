@@ -1,0 +1,82 @@
+{
+  "BA": {
+    "python": {
+      "time": 14.092927518999204,
+      "mean_squared_error": 0.5970101337617661,
+      "auc": 0.9664195667613638
+    },
+    "matlab": {
+      "time": 7.300420932995621,
+      "mean_squared_error": 0.5810301516542609,
+      "auc": 0.9665143341901153
+    },
+    "NumEL_sim": 1000,
+    "NumEL_rec": 100,
+    "recordingtime_ms": 3600000,
+    "Simulator": "Izhikevich"
+  },
+  "CA": {
+    "python": {
+      "time": 13.188711772003444,
+      "mean_squared_error": 1.6079999273198256,
+      "auc": 0.980159972283134
+    },
+    "matlab": {
+      "time": 8.44295926400082,
+      "mean_squared_error": 1.6014265658340092,
+      "auc": 0.9800224742162539
+    },
+    "NumEL_sim": 1000,
+    "NumEL_rec": 100,
+    "recordingtime_ms": 3600000,
+    "Simulator": "Izhikevich"
+  },
+  "ER05": {
+    "python": {
+      "time": 16.333610300003784,
+      "mean_squared_error": 1.0814472450889783,
+      "auc": 0.989428030486823
+    },
+    "matlab": {
+      "time": 7.514363222995598,
+      "mean_squared_error": 1.068030273536065,
+      "auc": 0.9895161412969091
+    },
+    "NumEL_sim": 1000,
+    "NumEL_rec": 100,
+    "recordingtime_ms": 3600000,
+    "Simulator": "Izhikevich"
+  },
+  "ER10": {
+    "python": {
+      "time": 27.973000764999597,
+      "mean_squared_error": 1.0836595272987248,
+      "auc": 0.988350673974469
+    },
+    "matlab": {
+      "time": 10.504595749000146,
+      "mean_squared_error": 1.1456735550598491,
+      "auc": 0.9886572898374041
+    },
+    "NumEL_sim": 1000,
+    "NumEL_rec": 100,
+    "recordingtime_ms": 3600000,
+    "Simulator": "Izhikevich"
+  },
+  "ER15": {
+    "python": {
+      "time": 26.505179748994124,
+      "mean_squared_error": 0.8381247038949355,
+      "auc": 0.9824820409110091
+    },
+    "matlab": {
+      "time": 10.199739659001352,
+      "mean_squared_error": 0.8735178326158117,
+      "auc": 0.985815868816124
+    },
+    "NumEL_sim": 1000,
+    "NumEL_rec": 100,
+    "recordingtime_ms": 3600000,
+    "Simulator": "Izhikevich"
+  }
+}
